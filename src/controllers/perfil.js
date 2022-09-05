@@ -1,4 +1,5 @@
 const Usuario = require('../models/usuario');
+const UserCreate = require('../models/UserCreate');
 
 const usersTodo = async (req,res) => {
 try {
@@ -15,6 +16,21 @@ try {
 }
 }
 
+const usersCreate = async (req,res) => {
+    try {
+        const user = await UserCreate.find();
+        res.json({
+            ok:true,
+            user})
+    } catch (error) {
+        console.log(error);
+        res.json({
+            ok:false,
+            msg:'no se encontro usuarios'
+        })
+    }
+    }
+
 
 const modificacionPorcentaje = async (req,res) => {
     try {
@@ -30,7 +46,7 @@ const modificacionPorcentaje = async (req,res) => {
                 msg:"no tienes permisos para hacer esta accion"
             })
         }
-
+        user.porcentaje = req.body.porcentaje;
        return res.status(200).json({
             ok:true,
             user
@@ -43,4 +59,5 @@ const modificacionPorcentaje = async (req,res) => {
 module.exports ={
     modificacionPorcentaje,
     usersTodo,
+    usersCreate
 }

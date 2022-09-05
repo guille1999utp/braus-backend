@@ -32,10 +32,12 @@ try {
         try {
             let user = await Usuario.findById( req.uid );
             if(user.rol === "Admin"){
-              const newProd = await Producto.findByIdAndDelete(req.body.id);
-              await cloudinary.cloudinary.uploader.destroy(newProd.fotosId, {type : 'upload', resource_type : 'image'}, (res)=>{
-                return res;
-           });
+              const newProd = await Producto.findByIdAndDelete(req.body.pid);
+              if(newProd.fotosId !== 0 ){
+                  await cloudinary.cloudinary.uploader.destroy(newProd.fotosId, {type : 'upload', resource_type : 'image'}, (res)=>{
+                      return res;
+                    });
+              }
               res.status(200).json({
                 ok:true,
                 })
