@@ -46,7 +46,7 @@ const modificacionPorcentaje = async (req,res) => {
                 msg:"no tienes permisos para hacer esta accion"
             })
         }
-
+        user.porcentaje = req.body.porcentaje;
        return res.status(200).json({
             ok:true,
             user

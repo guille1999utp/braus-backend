@@ -7,10 +7,10 @@ const { check } = require('express-validator');
 const router = Router();
 
 router.post('/producto',[
-check('fotosdescripsion','El usuario es obligatorio').notEmpty(),
 check('titulo','El titulo es obligatorio').notEmpty(),
 check('precio','El precio es obligatorio').notEmpty(),
-check('fotosId','la foto es obligatorio').notEmpty(),
+check('fotosdescripsion','El titulo es obligatorio').notEmpty(),
+check('fotosId','El precio es obligatorio').notEmpty(),
 validacioncampos],
 validarjwt,
 crearProducto);

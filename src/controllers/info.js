@@ -75,6 +75,23 @@ const createPor = async (req,res) => {
     }
     }
 
+    const infoPage = async (req,res) => {
+        try {
+            let info = await Informacion.find();
+               return res.status(200).json({
+                ok:true,
+                info:info[0]
+            })   
+        } catch (error) {
+            console.log(error);
+            return res.status(400).json({
+                ok:false,
+                msg:"error al crear la informacion"
+                
+            })
+        }
+        }
+
 module.exports ={
     modificacionPorcentaje,
     createPor,
