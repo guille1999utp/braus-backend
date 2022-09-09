@@ -27,13 +27,12 @@ router.post('/register', [
 router.post('/user', [
     check('usuario','El usuario es obligatorio').notEmpty(),
     validacioncampos
-],createUser);
+],validarjwt,createUser);
 
 router.delete('/user', [
     check('usuario','El usuario es obligatorio').notEmpty(),
-    validacioncampos,
-    validarjwt 
-],deleteUser);
+    validacioncampos
+],validarjwt ,deleteUser);
 
 
 router.get('/renovacion', validarjwt , renovar );

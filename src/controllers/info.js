@@ -23,6 +23,28 @@ const modificacionPorcentaje = async (req,res) => {
     }
     }
 
+    const getInfo = async (req,res) => {
+        try {
+            let user = await Usuario.findById( req.uid );
+            if(user.rol === "Admin"){
+               const info = await Informacion.find();
+               return res.status(200).json({
+                ok:true,
+                info
+            })
+            }else{
+               return res.status(401).json({
+                    ok:false,
+                    msg:"no tienes permisos para hacer esta accion"
+                })
+            }
+    
+          
+        } catch (error) {
+            console.log(error);
+        }
+        }
+
     
 const createPor = async (req,res) => {
     try {
@@ -55,5 +77,6 @@ const createPor = async (req,res) => {
 
 module.exports ={
     modificacionPorcentaje,
-    createPor
+    createPor,
+    getInfo
 }
