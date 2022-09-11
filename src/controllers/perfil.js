@@ -1,5 +1,4 @@
 const Usuario = require('../models/usuario');
-const UsuarioCreate = require('../models/UserCreate');
 const usersTodo = async (req,res) => {
 try {
     const user = await Usuario.find();
@@ -15,20 +14,7 @@ try {
 }
 }
 
-const usersCreateTodo = async (req,res) => {
-    try {
-        const user = await UsuarioCreate.find();
-        res.json({
-            ok:true,
-            user})
-    } catch (error) {
-        console.log(error);
-        res.json({
-            ok:false,
-            msg:'no se encontro usuarios'
-        })
-    }
-    }
+
 
 
 const modificacionPorcentaje = async (req,res) => {
@@ -39,7 +25,7 @@ const modificacionPorcentaje = async (req,res) => {
            await Usuario.findByIdAndUpdate( req.body.id, {
                 porcentaje: req.body.porcentaje
             } );
-            user = await Usuario.findById( req.uid );
+            user = await Usuario.findById( req.body.id );
         }else{
            return res.status(401).json({
                 ok:false,
@@ -58,6 +44,5 @@ const modificacionPorcentaje = async (req,res) => {
 
 module.exports ={
     modificacionPorcentaje,
-    usersTodo,
-    usersCreateTodo
+    usersTodo
 }

@@ -2,12 +2,10 @@ const {Schema,model} = require('mongoose');
 const userSchema = new Schema({
     nombre:  {
         type: String,
-        required : true,
         trim: true,
     }, 
     apellido:  {
         type: String,
-        required : true,
         trim: true,
     },
     usuario:{
@@ -21,14 +19,18 @@ const userSchema = new Schema({
     },
     correo:{
         type: String,
-        required : true,
-        unique: true,
-        trim: true
+        trim: true,
+        default:"",
+        
     },
     password:{
        type: String,
-       required : true,
 
+    }, 
+    Creado:  {
+        type: Boolean,
+        trim: true,
+        default:false
     },
     rol:{
         type: String,
@@ -37,7 +39,6 @@ const userSchema = new Schema({
     },
     porcentaje:{
         type: Number,
-        required : true,
         default: 0
     },
     creacion : {

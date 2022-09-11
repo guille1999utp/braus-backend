@@ -51,7 +51,6 @@ const createPor = async (req,res) => {
         let user = await Usuario.findById( req.uid );
         if(user.rol === "Admin"){
             const newPorc = new Informacion(req.body);
-            console.log(newPorc)
            await newPorc.save();
            return res.status(200).json({
             ok:true,

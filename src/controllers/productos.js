@@ -6,8 +6,10 @@ const crearProducto = async (req,res) => {
 try {
     let user = await Usuario.findById( req.uid );
     if(user.rol === "Admin"){
-      const newProd = new Producto(req.body);
-      await newProd.save();
+      const newProducto = new Producto(req.body);
+      await newProducto.save();
+      const newProd = await Producto.find()
+
       res.status(200).json({
         ok:true,
         newProd
@@ -32,9 +34,7 @@ try {
         try {
             let user = await Usuario.findById( req.uid );
             if(user.rol === "Admin"){
-              console.log(req.body)
               const newProd = await Producto.findByIdAndDelete(req.body.pid);
-              console.log(newProd)
               await cloudinary.cloudinary.uploader.destroy(newProd.fotosId, {type : 'upload', resource_type : 'image'}, (res)=>{
                 return res;
            });
@@ -72,13 +72,22 @@ try {
         }
     }
 
+
     const modificarProducto = async (req,res) => {
       try { 
         let user = await Usuario.findById( req.uid );
         if(user.rol === "Admin"){
-          const {id,...rest} = req.body
-          console.log(rest)
+            const {id,...rest} = req.body
+            
+            console.log(req.body)
           const prodUpdate = await Producto.findByIdAndUpdate(id,rest);
+          console.log(prodUpdate.fotosId !== rest.fotosId)
+          if(prodUpdate.fotosId !== rest.fotosId){
+            console.log(prodUpdate,rest)
+            await cloudinary.cloudinary.uploader.destroy(prodUpdate.fotosId, {type : 'upload', resource_type : 'image'}, (res)=>{
+                return res;
+           });
+          }
           res.status(200).json({
               ok:true,
               prodUpdate
@@ -86,14 +95,18 @@ try {
         }else{
             return res.status(401).json({
                  ok:false,
-                 msg:"no tienes permisos para hacer esta accion"
+                 errors:{
+                     msg:"no tienes permisos para hacer esta accion"
+                 }
              })
          }
       } catch (error) {
           console.log(error);
           res.status(400).json({
               ok:false,
+              errors:{
               msg:'no se creo el producto con exito'
+               }
           })
       }
 

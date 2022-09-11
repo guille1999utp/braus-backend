@@ -27,7 +27,7 @@ router.post('/register', [
 router.post('/user', [
     check('usuario','El usuario es obligatorio').notEmpty(),
     validacioncampos
-],validarjwt,createUser);
+],createUser);
 
 router.delete('/user', [
     check('usuario','El usuario es obligatorio').notEmpty(),

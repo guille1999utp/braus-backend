@@ -2,39 +2,42 @@ const { response } = require("express");
 const bcryptjs = require("bcryptjs");
 const InformacionPage = require("../models/informacion");
 const RegisterUsuario = require("../models/usuario");
-const CreateUsuario = require("../models/UserCreate");
 const { generarjwt } = require("../helpers/jwt");
 
 const Registerusuario = async (req, res = response) => {
   try {
-    const { password, usuario, correo } = req.body;
-    const existUser = await CreateUsuario.findOne({ usuario });
+    const { password, usuario, correo,...rest } = req.body;
+    const existUser = await RegisterUsuario.findOne({ usuario });
     const exisEmail = await RegisterUsuario.findOne({ correo });
     if (!existUser) {
       return res.status(400).json({
         ok: false,
-        msg: "el usuario no esta registrado",
+        errors: {
+          msg:"el usuario no esta registrado",
+          }
       });
     }
 
     if (existUser.Creado) {
       return res.status(400).json({
         ok: false,
-        msg: "el usuario ya esta registrado",
+        errors: {
+          msg:"el usuario ya esta registrado"
+        },
       });
     }
     if (exisEmail) {
       return res.status(400).json({
         ok: false,
-        msg: "el Correo ya existe",
+        errors: {
+          msg:"el Correo ya existe",
+        }
       });
     }
-    await CreateUsuario.findByIdAndUpdate(existUser._id, { Creado: true });
-    const newuser = new RegisterUsuario(req.body);
     const salt = bcryptjs.genSaltSync();
-    newuser.password = bcryptjs.hashSync(password, salt);
-    await newuser.save();
-
+    const newPassword = bcryptjs.hashSync(password, salt);
+    await RegisterUsuario.findByIdAndUpdate(existUser._id, {...rest, Creado: true,usuario, correo,password:newPassword });
+    const newuser = await RegisterUsuario.findById(existUser._id)
     const token = await generarjwt(newuser.id);
     res.json({
       ok: true,
@@ -57,7 +60,6 @@ const deleteUser = async (req,res) => {
         let user = await RegisterUsuario.findById( req.uid );
         if(user.rol === "Admin"){
           await RegisterUsuario.findOneAndDelete({ usuario});  
-         await CreateUsuario.findOneAndDelete({ usuario });
           res.status(200).json({
             ok:true
             })
@@ -80,14 +82,14 @@ const deleteUser = async (req,res) => {
 const createUser = async (req, res = response) => {
   try {
     const { usuario, referente } = req.body;
-    const existUser = await CreateUsuario.findOne({ usuario });
+    const existUser = await RegisterUsuario.findOne({ usuario });
     if (existUser) {
       return res.status(400).json({
         ok: false,
         msg: "el usuario ya existe",
       });
     }
-    const newuser = new CreateUsuario(req.body);
+    const newuser = new RegisterUsuario(req.body);
     if (referente) {
       const userReferent = await RegisterUsuario.find({ usuario: referente });
       if (userReferent.length > 0) {
@@ -123,8 +125,6 @@ const createUser = async (req, res = response) => {
           usuariosRef: { $all: [referente] },
         });
 
-        console.log(userReferentFather);
-
         if (userReferentFather.length > 0) {
           if (
             userReferentFather[0].porcentaje +
@@ -149,8 +149,6 @@ const createUser = async (req, res = response) => {
           const userReferentFather2 = await RegisterUsuario.find({
             usuariosRef: { $all: [userReferentFather[0].usuario] },
           });
-
-          console.log(userReferentFather2);
           if (userReferentFather2.length > 0) {
             if (
               userReferentFather2[0].porcentaje +
@@ -201,9 +199,22 @@ const InicioSesion = async (req, res = response) => {
     if (!usuarioBd) {
       return res.status(404).json({
         ok: false,
-        msg: "usuario no existe",
+        errors:{
+          msg: "usuario no existe",
+        }
       });
     }
+
+    if (!usuarioBd.Creado) {
+      return res.status(404).json({
+        ok: false,
+        errors:{
+          msg: "debes registrarte antes de ingresar",
+        }
+      });
+    }
+
+
     const validarcontraseña = bcryptjs.compareSync(
       password,
       usuarioBd.password
@@ -211,7 +222,9 @@ const InicioSesion = async (req, res = response) => {
     if (!validarcontraseña) {
       return res.status(404).json({
         ok: false,
-        msg: "contraseña incorrecta",
+        errors:{
+          msg: "contraseña incorrecta",
+        }
       });
     }
     const token = await generarjwt(usuarioBd.id);
@@ -224,7 +237,9 @@ const InicioSesion = async (req, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "hubo fallas en la base de datos de brous",
+      errors:{
+      msg: "hubo fallas en la base de datos de brous"
+      }
     });
   }
 };
