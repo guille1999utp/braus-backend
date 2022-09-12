@@ -78,12 +78,8 @@ try {
         let user = await Usuario.findById( req.uid );
         if(user.rol === "Admin"){
             const {id,...rest} = req.body
-            
-            console.log(req.body)
           const prodUpdate = await Producto.findByIdAndUpdate(id,rest);
-          console.log(prodUpdate.fotosId !== rest.fotosId)
           if(prodUpdate.fotosId !== rest.fotosId){
-            console.log(prodUpdate,rest)
             await cloudinary.cloudinary.uploader.destroy(prodUpdate.fotosId, {type : 'upload', resource_type : 'image'}, (res)=>{
                 return res;
            });
