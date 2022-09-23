@@ -7,7 +7,7 @@ const { generarjwt } = require("../helpers/jwt");
 const Registerusuario = async (req, res = response) => {
   try {
     const { password, usuario, correo,...rest } = req.body;
-    const existUser = await RegisterUsuario.findOne({ usuario });
+    const existUser = await RegisterUsuario.findOne({ usuario:usuario.toLowerCase() });
     const exisEmail = await RegisterUsuario.findOne({ correo });
     if (!existUser) {
       return res.status(400).json({
