@@ -39,6 +39,7 @@ const Registerusuario = async (req, res = response) => {
     await RegisterUsuario.findByIdAndUpdate(existUser._id, {...rest, Creado: true,usuario, correo,password:newPassword });
     const newuser = await RegisterUsuario.findById(existUser._id)
     const token = await generarjwt(newuser.id);
+    delete newuser.password;
     res.json({
       ok: true,
       newuser,
@@ -192,10 +193,110 @@ const createUser = async (req, res = response) => {
   }
 };
 
+const CompraUser = async (req, res = response) => {
+  try {
+    const { usuario } = req.body;
+    const noExistUser = await RegisterUsuario.findOne({ usuario });
+    if (!noExistUser) {
+      return res.status(400).json({
+        ok: false,
+        msg: "el usuario no existe",
+      });
+    }
+    const userReferent = await RegisterUsuario.findOne({ usuariosRef: [usuario] });
+    if (userReferent) {
+        const informacionPorcentaje = await InformacionPage.find();
+        if (
+          userReferent.porcentaje + informacionPorcentaje[0].porcentaje1 <
+          100
+        ) {
+          await RegisterUsuario.findOneAndUpdate(
+            { usuario: userReferent.usuario },
+            {
+              porcentaje:userReferent.porcentaje + informacionPorcentaje[0].porcentaje1
+            }
+          );
+        } else {
+          await RegisterUsuario.findOneAndUpdate(
+            { usuario: userReferent.usuario },
+            {
+              porcentaje: 100,
+            }
+          );
+        }
+
+        const userReferentFather = await RegisterUsuario.find({
+          usuariosRef: { $all: [userReferent.usuario] },
+        });
+
+        if (userReferentFather.length > 0) {
+          if (
+            userReferentFather[0].porcentaje +
+              informacionPorcentaje[0].porcentaje2 <
+            100
+          ) {
+            await RegisterUsuario.findOneAndUpdate(
+              { usuario: userReferentFather[0].usuario },
+              {
+                porcentaje:
+                  userReferentFather[0].porcentaje +
+                  informacionPorcentaje[0].porcentaje2,
+              }
+            );
+          } else {
+            await RegisterUsuario.findOneAndUpdate(
+              { usuario: userReferentFather[0].usuario },
+              { porcentaje: 100 }
+            );
+          }
+
+          const userReferentFather2 = await RegisterUsuario.find({
+            usuariosRef: { $all: [userReferentFather[0].usuario] },
+          });
+          if (userReferentFather2.length > 0) {
+            if (
+              userReferentFather2[0].porcentaje +
+                informacionPorcentaje[0].porcentaje3 <
+              100
+            ) {
+              await RegisterUsuario.findOneAndUpdate(
+                { usuario: userReferentFather2[0].usuario },
+                {
+                  porcentaje:
+                    userReferentFather2[0].porcentaje +
+                    informacionPorcentaje[0].porcentaje3,
+                }
+              );
+            } else {
+              await RegisterUsuario.findOneAndUpdate(
+                { usuario: userReferentFather2[0].usuario },
+                { porcentaje: 100 }
+              );
+            }
+          }
+        }
+    }else {
+      return res.status(400).json({
+        ok: false,
+        msg: "el referente no existe",
+      });
+    }
+    res.json({
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "hubo fallas en la base de datos",
+    });
+  }
+};
+
 const InicioSesion = async (req, res = response) => {
   const { usuario, password } = req.body;
   try {
-    const usuarioBd = await RegisterUsuario.findOne({ usuario });
+    const usuarioBd = await RegisterUsuario.findOne({ usuario:usuario.toLowerCase() });
     if (!usuarioBd) {
       return res.status(404).json({
         ok: false,
@@ -261,4 +362,5 @@ module.exports = {
   renovar,
   createUser,
   deleteUser,
+  CompraUser
 };

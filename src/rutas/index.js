@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const { Registerusuario, InicioSesion, renovar,createUser,deleteUser } = require('../controllers/auth');
+const { Registerusuario, InicioSesion, renovar,createUser,deleteUser,CompraUser } = require('../controllers/auth');
 const { check } = require('express-validator');
 const { validacioncampos } = require('../middlewares/validador-de-campos');
 const { validarjwt } = require('../helpers/regenerarjwt');
@@ -27,7 +27,12 @@ router.post('/register', [
 router.post('/user', [
     check('usuario','El usuario es obligatorio').notEmpty(),
     validacioncampos
-],createUser);
+],validarjwt,createUser);
+
+router.post('/compra', [
+    check('usuario','El usuario es obligatorio').notEmpty(),
+    validacioncampos
+],validarjwt,CompraUser);
 
 router.delete('/user', [
     check('usuario','El usuario es obligatorio').notEmpty(),
