@@ -276,9 +276,8 @@ const CompraUser = async (req, res = response) => {
           }
         }
     }else {
-      return res.status(400).json({
-        ok: false,
-        msg: "el referente no existe",
+      return res.status(200).json({
+        ok: true
       });
     }
     res.json({
